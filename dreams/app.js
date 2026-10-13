@@ -1,7 +1,37 @@
 'use strict';
 const $=id=>document.getElementById(id);
-function playVideo(){if($('video-frame').querySelector('iframe'))return;const f=document.createElement('iframe');f.src='https://fast.wistia.net/embed/iframe/xy4ob0ihb2?autoPlay=true&playerColor=1256ff';f.title='Show Me The Money — business owner briefing';f.allow='autoplay; fullscreen; picture-in-picture';f.allowFullscreen=true;$('video-frame').replaceChildren(f);f.focus();$('watch-video').textContent='Video opened';}
-$('play-video').addEventListener('click',playVideo);$('watch-video').addEventListener('click',playVideo);
+const heroVideos={
+ intro:{title:'Dreams Score Report Intro',cover:'assets/dreams-score-intro-cover.png',src:'/videos/dreams-score-business.mp4',label:'Watch the intro ▶'},
+ overview:{title:'Show Me The Money — business owner briefing',cover:'assets/video-cover.png',src:'https://fast.wistia.net/embed/iframe/xy4ob0ihb2?autoPlay=true&playerColor=1256ff',label:'Watch the overview ▶'}
+};
+let activeVideo='intro';
+function selectVideo(key){
+ if(key===activeVideo)return;
+ const previous=$('video-frame').querySelector('video');if(previous)previous.pause();
+ activeVideo=key;
+ const data=heroVideos[key],button=document.createElement('button'),img=document.createElement('img');
+ button.type='button';button.id='play-video';button.className='video-cover';button.setAttribute('aria-label','Play '+data.title);
+ img.src=data.cover;img.alt=data.title+' video cover';img.width=1672;img.height=941;button.append(img);
+ $('video-frame').replaceChildren(button);
+ $('video-heading').textContent=key==='intro'?'DREAMS SCORE REPORT INTRO':'THE BUSINESS OWNER BRIEFING';
+ $('watch-video').textContent=data.label;
+ document.querySelectorAll('[data-video]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.video===key)));
+}
+function playVideo(){
+ const frame=$('video-frame');if(frame.querySelector('iframe,video'))return;
+ const data=heroVideos[activeVideo];let player;
+ if(activeVideo==='intro'){
+  player=document.createElement('video');player.controls=true;player.playsInline=true;player.preload='metadata';player.poster=data.cover;player.src=data.src;player.setAttribute('aria-label',data.title);
+ }else{
+  player=document.createElement('iframe');player.src=data.src;player.title=data.title;player.allow='autoplay; fullscreen; picture-in-picture';player.allowFullscreen=true;
+ }
+ frame.replaceChildren(player);player.focus();
+ if(activeVideo==='intro')player.play().catch(()=>{});
+ $('watch-video').textContent='Video opened';
+}
+document.querySelectorAll('[data-video]').forEach(b=>b.addEventListener('click',()=>selectVideo(b.dataset.video)));
+$('video-frame').addEventListener('click',e=>{if(e.target.closest('.video-cover'))playVideo()});
+$('watch-video').addEventListener('click',playVideo);
 const reportData=[['See more than a single expense.','Connect funding, benefits, expenses, assets, tax credits, and protection in one place. The report makes it easier to see where to focus.'],['Put the estimate in context.','The sample separates opportunity areas and shows the assumptions behind its estimates. Amounts are a starting point for discussion—not verified savings or a promised return.'],['Know what to investigate next.','Use the findings to prioritize a specialist conversation. Validate eligibility, costs, implementation requirements, and the potential impact before deciding.']];
 const tabs=[...document.querySelectorAll('[data-report]')];function setReport(n,focus=false){tabs.forEach((b,i)=>{b.setAttribute('aria-selected',i===n);b.tabIndex=i===n?0:-1});$('report-panel').setAttribute('aria-labelledby',tabs[n].id);$('report-panel').replaceChildren(Object.assign(document.createElement('h3'),{textContent:reportData[n][0]}),Object.assign(document.createElement('p'),{textContent:reportData[n][1]}));if(focus)tabs[n].focus();}
 tabs.forEach((b,i)=>{b.addEventListener('click',()=>setReport(i));b.addEventListener('keydown',e=>{if(['ArrowRight','ArrowLeft','Home','End'].includes(e.key)){e.preventDefault();setReport(e.key==='Home'?0:e.key==='End'?2:(i+(e.key==='ArrowRight'?1:2))%3,true)}})});
