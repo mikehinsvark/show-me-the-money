@@ -1,4 +1,8 @@
 'use strict';
+// Default only the full overview to 1.25x; viewers can still change speed.
+window._wq=window._wq||[];
+window._wq.push({id:'xy4ob0ihb2',onReady:function(video){video.playbackRate(1.25);}});
+
 const $=id=>document.getElementById(id);
 const heroVideos={
  intro:{title:'Dreams Score Report Intro',cover:'assets/dreams-score-intro-cover.png',src:'/videos/dreams-score-business.mp4',label:'Watch the intro ▶'},
@@ -23,7 +27,7 @@ function playVideo(){
  if(activeVideo==='intro'){
   player=document.createElement('video');player.controls=true;player.playsInline=true;player.preload='metadata';player.poster=data.cover;player.src=data.src;player.setAttribute('aria-label',data.title);
  }else{
-  player=document.createElement('iframe');player.src=data.src;player.title=data.title;player.allow='autoplay; fullscreen; picture-in-picture';player.allowFullscreen=true;
+  player=document.createElement('iframe');player.className='wistia_embed';player.src=data.src;player.title=data.title;player.allow='autoplay; fullscreen; picture-in-picture';player.allowFullscreen=true;
  }
  frame.replaceChildren(player);player.focus();
  if(activeVideo==='intro')player.play().catch(()=>{});
