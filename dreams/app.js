@@ -1,7 +1,22 @@
 'use strict';
-// Default only the full overview to 1.25x; viewers can still change speed.
-window._wq=window._wq||[];
-window._wq.push({id:'xy4ob0ihb2',onReady:function(video){video.playbackRate(1.25);}});
+
+// Use the current Wistia player so speed is configured on the player itself.
+function createOverviewPlayer(mediaId,title,color){
+ const player=document.createElement('wistia-player');
+ player.setAttribute('media-id',mediaId);
+ player.setAttribute('playback-rate','1.25');
+ player.setAttribute('player-color',color);
+ player.setAttribute('autoplay','');
+ player.setAttribute('playsinline','');
+ player.setAttribute('settings-control','true');
+ player.setAttribute('playback-rate-control','true');
+ player.setAttribute('aria-label',title);
+ player.tabIndex=0;
+ // Set the default at initialization and first playback, not on later resumes.
+ player.addEventListener('api-ready',()=>{player.playbackRate=1.25;},{once:true});
+ player.addEventListener('play',()=>{player.playbackRate=1.25;},{once:true});
+ return player;
+}
 
 const $=id=>document.getElementById(id);
 const heroVideos={
@@ -11,7 +26,7 @@ const heroVideos={
 let activeVideo='intro';
 function selectVideo(key){
  if(key===activeVideo)return;
- const previous=$('video-frame').querySelector('video');if(previous)previous.pause();
+ const previous=$('video-frame').querySelector('video,wistia-player');if(previous&&typeof previous.pause==='function')previous.pause();
  activeVideo=key;
  const data=heroVideos[key],button=document.createElement('button'),img=document.createElement('img');
  button.type='button';button.id='play-video';button.className='video-cover';button.setAttribute('aria-label','Play '+data.title);
@@ -22,12 +37,12 @@ function selectVideo(key){
  document.querySelectorAll('[data-video]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.video===key)));
 }
 function playVideo(){
- const frame=$('video-frame');if(frame.querySelector('iframe,video'))return;
+ const frame=$('video-frame');if(frame.querySelector('iframe,video,wistia-player'))return;
  const data=heroVideos[activeVideo];let player;
  if(activeVideo==='intro'){
-  player=document.createElement('video');player.controls=true;player.playsInline=true;player.preload='metadata';player.poster=data.cover;player.src=data.src;player.setAttribute('aria-label',data.title);
+  player=document.createElement('video');player.controls=true;player.playsInline=true;player.preload='metadata';player.defaultPlaybackRate=1.25;player.playbackRate=1.25;player.addEventListener('loadedmetadata',()=>{player.playbackRate=1.25;},{once:true});player.addEventListener('play',()=>{player.playbackRate=1.25;},{once:true});player.poster=data.cover;player.src=data.src;player.setAttribute('aria-label',data.title);
  }else{
-  player=document.createElement('iframe');player.className='wistia_embed';player.src=data.src;player.title=data.title;player.allow='autoplay; fullscreen; picture-in-picture';player.allowFullscreen=true;
+  player=createOverviewPlayer('xy4ob0ihb2',data.title,'#1256ff');
  }
  frame.replaceChildren(player);player.focus();
  if(activeVideo==='intro')player.play().catch(()=>{});

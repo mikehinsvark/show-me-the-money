@@ -62,3 +62,6 @@ body{font-size:17px;line-height:1.65}.header{min-height:88px}.header nav{font-si
 @media(max-width:1100px) and (min-width:851px){.video-option{padding:12px 9px;gap:8px}.video-option strong{font-size:12px}.video-option small{font-size:8px;letter-spacing:.3px}.video-option-play{flex-basis:28px;width:28px;height:28px}}
 @media(max-width:480px){.video-selector{gap:8px}.video-option{padding:12px 8px;gap:7px}.video-option strong{font-size:12px}.video-option small{font-size:8px;letter-spacing:.2px;gap:5px}.video-option-play{flex-basis:26px;width:26px;height:26px;font-size:11px}.video-option small b{font-size:11px;padding:2px 4px}}
 @media(prefers-reduced-motion:reduce){.video-option{transition:none}.video-option:hover{transform:none}}
+
+/* Current Wistia player fits the existing responsive video stage. */
+#video-frame wistia-player{display:block;width:100%;height:100%;aspect-ratio:16/9;background:#061b40}
